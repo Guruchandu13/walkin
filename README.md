@@ -3,13 +3,16 @@
 A production-ready, single-card liquid glassmorphic recruitment landing page designed for QR code scanning.
 
 ## 🚀 Features
-- **Progressive Flow**:
-  1. **Step 1 (First Scan)**: Displays company branding, welcome message, and **ONLY "Click Here ↗"** (LinkedIn button).
-  2. **Step 2 (Upon Return / Page Reload)**:
-     - Automatically transitions to show **ONLY Step 2**: **"Ready to Apply?"** with **"Continue to Application Form →"** button.
-  3. **Step 3 (Completion -> LinkedIn Direct Page)**:
-     - When candidate clicks **"Continue to Application Form →"**, Google Form opens in a new tab.
-     - This tab transitions to Step 3 and redirects to the official **LinkedIn direct page** (`https://www.linkedin.com/company/sivionglobaltechnologies/`).
+- **Continuous Step Format**:
+  1. **Top Section**: Displays company branding, welcome message, and **"Click Here ↗"** (LinkedIn button).
+  2. **Downside Application Section ("Step 2: Apply")**:
+     - Automatically revealed downside when candidate clicks the LinkedIn button, returns from the app, or reloads the page.
+     - Contains **"Continue to Application Form →"** button.
+  3. **Browser-Only Fallback**:
+     - If the user has the LinkedIn mobile app installed, it launches the app.
+     - If the LinkedIn app is NOT installed, it opens directly on the browser only (no Play Store redirect or error alerts).
+  4. **Transparent Watermark**:
+     - Clean, subtle transparent letter watermark ("SIVION GLOBAL TECHNOLOGIES") placed directly downside of the Apply button.
 - **Developer / Testing Reset**:
   - Discreetly reset state by tapping the Sivion logo 3 times, or by loading with `?reset=1`.
 - **Design & UI**:

@@ -485,6 +485,19 @@ h1, h2 {
   box-shadow: 0 0 14px rgba(91, 194, 255, 0.18);
 }
 
+.icon-check-small {
+  width: 13px;
+  height: 13px;
+  color: var(--cyan-accent);
+}
+
+.apply-prompt {
+  margin: 0 0 14px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 /* Revisit LinkedIn link */
 .revisit-container {
   margin-top: 18px;

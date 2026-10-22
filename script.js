@@ -1,45 +1,38 @@
 /**
  * Sivion Global Technologies - Recruitment Landing Page Script
  *
- * Flow:
- * 1. Step 1 (First View):
- *    - Displays ONLY Step 1 (LinkedIn card with "Click Here ↗").
- *    - Step 2 and Step 3 are hidden.
- * 2. Click LinkedIn ("Click Here ↗"):
- *    - If user has LinkedIn app: Launches the mobile app.
- *    - If user DOES NOT have LinkedIn app: Opens on the browser only!
- *    - Switches card to ONLY Step 2.
- * 3. Step 2 (Upon Return / Reload):
- *    - Displays ONLY Step 2 ("Ready to Apply?" with "Continue to Application Form →" button).
- *    - Features subtle transparent letter watermark directly downside of the Apply button.
- * 4. Step 3 (Completion -> LinkedIn Direct Page):
- *    - When candidate clicks "Continue to Application Form →", Google Form opens in a new tab.
- *    - The card transitions to Step 3 and redirects this tab to the official LinkedIn direct page!
- * 5. Reset:
- *    - Triple-tap on Sivion logo or load with ?reset=1 to reset demo to Step 1.
+ * Requirements:
+ * 1. Previous Format of Steps:
+ *    - Main recruitment card with LinkedIn section always visible at the top.
+ *    - Downside contains the Application Form section ("Step 2: Apply"), revealed upon click / return / reload.
+ * 2. Fallback Behavior:
+ *    - If user has the LinkedIn mobile app: Redirects into native app.
+ *    - If user DOES NOT have the app: Opens directly on the browser only (no errors, no Play Store redirects).
+ * 3. Chrome Intactness:
+ *    - Dispatches intent / link with target="_blank" so this recruitment tab is never navigated away or lost.
+ * 4. Transparent Watermark:
+ *    - SIVION GLOBAL TECHNOLOGIES transparent letter watermark preserved downside of the Apply button.
+ * 5. State Persistence & Reload:
+ *    - Reloading or returning to the page keeps the LinkedIn card and reveals the Application Form button downside.
+ *    - Reset demo by tapping company logo 3 times or loading with ?reset=1.
  */
 (function () {
   'use strict';
 
   function init() {
-    var STEP_STORAGE_KEY = 'sivion_hiring_active_step';
+    var STORAGE_KEY = 'sivion_hiring_linkedin_clicked';
     var LINKEDIN_COMPANY_SLUG = 'sivionglobaltechnologies';
     var LINKEDIN_WEB_URL = 'https://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/';
     // Android Intent WITH S.browser_fallback_url:
-    // If app installed -> launches app. If app NOT installed -> opens on the browser only!
+    // If LinkedIn app is installed -> launches app.
+    // If LinkedIn app is NOT installed -> opens on the browser only!
     var LINKEDIN_ANDROID_INTENT = 'intent://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/#Intent;package=com.linkedin.android;scheme=https;S.browser_fallback_url=' + encodeURIComponent(LINKEDIN_WEB_URL) + ';end;';
-    var APPLICATION_FORM_URL = 'https://forms.gle/3MqJjTt8rDVob79G9';
 
-    var step1 = document.getElementById('step-1');
-    var step2 = document.getElementById('step-2');
-    var step3 = document.getElementById('step-3');
     var linkedinBtn = document.getElementById('linkedin-btn');
-    var applyBtn = document.getElementById('apply-btn');
-    var revisitLinkedinLink = document.getElementById('revisit-linkedin-link');
-    var finalLinkedinBtn = document.getElementById('final-linkedin-btn');
+    var applySection = document.getElementById('apply-section');
     var companyLogo = document.querySelector('.company-logo');
 
-    if (!step1 || !step2 || !linkedinBtn) {
+    if (!linkedinBtn || !applySection) {
       return;
     }
 
@@ -49,30 +42,21 @@
     var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     // In-memory fallback
-    var inMemoryStep = '1';
+    var inMemoryClicked = false;
 
     /**
-     * Configure anchor targets and URLs:
+     * Configure anchor href and target:
      * - Android: intent:// with S.browser_fallback_url (App if installed, browser only if not)
-     * - iOS & Desktop: https:// (App via Universal Link if installed, browser only if not)
+     * - iOS & Desktop: https:// (Universal Link / Web in browser)
+     * Target is _blank so the recruitment tab remains undisturbed
      */
     if (isAndroid) {
       linkedinBtn.setAttribute('href', LINKEDIN_ANDROID_INTENT);
-      if (revisitLinkedinLink) {
-        revisitLinkedinLink.setAttribute('href', LINKEDIN_ANDROID_INTENT);
-      }
     } else {
       linkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
-      if (revisitLinkedinLink) {
-        revisitLinkedinLink.setAttribute('href', LINKEDIN_WEB_URL);
-      }
     }
     linkedinBtn.setAttribute('target', '_blank');
     linkedinBtn.setAttribute('rel', 'noopener noreferrer');
-    if (revisitLinkedinLink) {
-      revisitLinkedinLink.setAttribute('target', '_blank');
-      revisitLinkedinLink.setAttribute('rel', 'noopener noreferrer');
-    }
 
     /**
      * Check URL query parameter: ?reset=1 or ?test=1 to reset demo state
@@ -87,50 +71,49 @@
     /**
      * Multi-tier safe state persistence (localStorage, sessionStorage, cookie, memory)
      */
-    function saveStep(stepNum) {
-      inMemoryStep = String(stepNum);
+    function saveState() {
+      inMemoryClicked = true;
       try {
-        window.localStorage.setItem(STEP_STORAGE_KEY, inMemoryStep);
+        window.localStorage.setItem(STORAGE_KEY, 'true');
       } catch (e) {}
       try {
-        window.sessionStorage.setItem(STEP_STORAGE_KEY, inMemoryStep);
+        window.sessionStorage.setItem(STORAGE_KEY, 'true');
       } catch (e) {}
       try {
-        document.cookie = STEP_STORAGE_KEY + '=' + inMemoryStep + '; path=/; max-age=604800; SameSite=Lax';
+        document.cookie = STORAGE_KEY + '=true; path=/; max-age=604800; SameSite=Lax';
       } catch (e) {}
     }
 
-    function readStep() {
-      if (inMemoryStep && inMemoryStep !== '1') {
-        return inMemoryStep;
+    function readState() {
+      if (inMemoryClicked) {
+        return 'true';
       }
       try {
-        var ls = window.localStorage.getItem(STEP_STORAGE_KEY);
-        if (ls) return ls;
+        var ls = window.localStorage.getItem(STORAGE_KEY);
+        if (ls === 'true') return 'true';
       } catch (e) {}
       try {
-        var ss = window.sessionStorage.getItem(STEP_STORAGE_KEY);
-        if (ss) return ss;
+        var ss = window.sessionStorage.getItem(STORAGE_KEY);
+        if (ss === 'true') return 'true';
       } catch (e) {}
       try {
-        var match = document.cookie && document.cookie.match(new RegExp('(?:^|; )' + STEP_STORAGE_KEY + '=([^;]*)'));
-        if (match && match[1]) {
-          return decodeURIComponent(match[1]);
+        if (document.cookie && document.cookie.indexOf(STORAGE_KEY + '=true') !== -1) {
+          return 'true';
         }
       } catch (e) {}
-      return '1';
+      return null;
     }
 
     function clearState() {
-      inMemoryStep = '1';
+      inMemoryClicked = false;
       try {
-        window.localStorage.removeItem(STEP_STORAGE_KEY);
+        window.localStorage.removeItem(STORAGE_KEY);
       } catch (e) {}
       try {
-        window.sessionStorage.removeItem(STEP_STORAGE_KEY);
+        window.sessionStorage.removeItem(STORAGE_KEY);
       } catch (e) {}
       try {
-        document.cookie = STEP_STORAGE_KEY + '=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        document.cookie = STORAGE_KEY + '=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       } catch (e) {}
     }
 
@@ -143,109 +126,73 @@
     }
 
     /**
-     * Render the active single step
+     * Reveal downside Application Form button
      */
-    function renderStep(stepNum, animated) {
-      var activePane = step1;
-      if (stepNum === '2') {
-        activePane = step2;
-      } else if (stepNum === '3' && step3) {
-        activePane = step3;
+    function showApplySection(animated) {
+      linkedinBtn.setAttribute('aria-expanded', 'true');
+      applySection.removeAttribute('hidden');
+      applySection.style.display = 'block';
+      applySection.style.opacity = '1';
+      applySection.style.visibility = 'visible';
+
+      if (!animated || isReducedMotionPreferred()) {
+        applySection.classList.remove('is-entering');
+        return;
       }
 
-      // Hide all panes
-      [step1, step2, step3].forEach(function (pane) {
-        if (pane) {
-          pane.setAttribute('hidden', '');
-          pane.classList.remove('is-entering');
-        }
-      });
-
-      // Show ONLY the active step pane
-      activePane.removeAttribute('hidden');
-
-      if (animated && !isReducedMotionPreferred()) {
-        void activePane.offsetWidth; // Reflow for clean entrance animation
-        activePane.classList.add('is-entering');
-      }
-
-      // Accessibility expanded state
-      if (stepNum === '1') {
-        linkedinBtn.setAttribute('aria-expanded', 'false');
-      } else {
-        linkedinBtn.setAttribute('aria-expanded', 'true');
-      }
+      applySection.classList.remove('is-entering');
+      void applySection.offsetWidth; // Trigger reflow for clean CSS animation replay
+      applySection.classList.add('is-entering');
     }
 
+    /**
+     * Hide downside Application Form button (initial state)
+     */
+    function hideApplySection() {
+      linkedinBtn.setAttribute('aria-expanded', 'false');
+      applySection.setAttribute('hidden', '');
+      applySection.style.display = 'none';
+      applySection.style.opacity = '0';
+      applySection.style.visibility = 'hidden';
+      applySection.classList.remove('is-entering');
+    }
+
+    /**
+     * Check stored state and show/hide the downside application button
+     */
     function updateViewState(animated) {
-      var currentStep = readStep();
-      renderStep(currentStep, animated);
+      if (readState() === 'true') {
+        showApplySection(animated);
+      } else {
+        hideApplySection();
+      }
     }
 
     // Step A: Initial render on page load / reload
     updateViewState(false);
 
-    // Step B: User clicks LinkedIn button on Step 1 ("Click Here ↗")
+    // Step B: User clicks the LinkedIn button
     function handleLinkedInClick(event) {
       if (event.type === 'auxclick' && event.button !== 1) {
         return;
       }
 
-      // 1. Advance state to Step 2
-      saveStep('2');
+      // 1. Immediately persist state
+      saveState();
 
-      // 2. Switch card to display ONLY Step 2
-      renderStep('2', true);
+      // 2. Immediately reveal the application button downside right on THIS tab
+      showApplySection(true);
 
-      // We do NOT preventDefault:
-      // The anchor's target="_blank" natively opens the link:
-      // - If mobile has LinkedIn app -> launches the app!
-      // - If mobile DOES NOT have LinkedIn app -> opens on the browser only!
-      // - On Desktop -> opens on the browser only!
-      // And this tab stays 100% intact displaying Step 2 with the Application Form button!
+      // 3. Native anchor behavior will dispatch target="_blank" to launch app or browser tab
+      // leaving this recruitment tab active and undisturbed
     }
 
     linkedinBtn.addEventListener('click', handleLinkedInClick);
     linkedinBtn.addEventListener('auxclick', handleLinkedInClick);
 
-    // Revisit LinkedIn button on Step 2
-    if (revisitLinkedinLink) {
-      revisitLinkedinLink.addEventListener('click', function () {
-        // Native target="_blank" opens app if installed, browser only if not
-      });
-    }
-
-    // Step C: User clicks "Continue to Application Form →" on Step 2
-    if (applyBtn) {
-      applyBtn.addEventListener('click', function (event) {
-        if (event && event.preventDefault) {
-          event.preventDefault();
-        }
-
-        // 1. Advance state to Step 3 (completion)
-        saveStep('3');
-
-        // 2. Open Google Form in a new tab
-        window.open(APPLICATION_FORM_URL, '_blank');
-
-        // 3. Switch card to Step 3
-        renderStep('3', true);
-
-        // 4. Redirect this tab to the direct LinkedIn page after 1.5 seconds
-        setTimeout(function () {
-          window.location.href = LINKEDIN_WEB_URL;
-        }, 1500);
-      });
-    }
-
-    // Final LinkedIn button on Step 3
-    if (finalLinkedinBtn) {
-      finalLinkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
-      finalLinkedinBtn.setAttribute('target', '_blank');
-      finalLinkedinBtn.setAttribute('rel', 'noopener noreferrer');
-    }
-
-    // Step D: Tab Return / Window Focus ("malli vasthey")
+    // Step C: "Malli vasthey" / Tab Return / Window Focus
+    // When switching back from the LinkedIn mobile app to Chrome,
+    // these events ensure the Application Form button is actively displayed downside
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') {
         updateViewState(false);
@@ -260,7 +207,7 @@
       updateViewState(false);
     });
 
-    // Step E: Discreet test reset by tapping company logo 3 times
+    // Step D: Discreet test reset by tapping company logo 3 times
     if (companyLogo) {
       var logoTaps = 0;
       var logoTapTimer = null;
@@ -274,7 +221,7 @@
         if (logoTaps >= 3) {
           logoTaps = 0;
           clearState();
-          renderStep('1', true);
+          hideApplySection();
         }
       });
     }
