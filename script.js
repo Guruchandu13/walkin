@@ -6,10 +6,12 @@
  *    - Displays ONLY Step 1 (LinkedIn card with "Click Here ↗").
  *    - Step 2 and Step 3 are hidden.
  * 2. Click LinkedIn ("Click Here ↗"):
+ *    - If user has LinkedIn app: Launches the mobile app.
+ *    - If user DOES NOT have LinkedIn app: Opens on the browser only!
  *    - Switches card to ONLY Step 2.
- *    - Opens LinkedIn app / new tab.
  * 3. Step 2 (Upon Return / Reload):
  *    - Displays ONLY Step 2 ("Ready to Apply?" with "Continue to Application Form →" button).
+ *    - Features subtle transparent letter watermark directly downside of the Apply button.
  * 4. Step 3 (Completion -> LinkedIn Direct Page):
  *    - When candidate clicks "Continue to Application Form →", Google Form opens in a new tab.
  *    - The card transitions to Step 3 and redirects this tab to the official LinkedIn direct page!
@@ -23,9 +25,9 @@
     var STEP_STORAGE_KEY = 'sivion_hiring_active_step';
     var LINKEDIN_COMPANY_SLUG = 'sivionglobaltechnologies';
     var LINKEDIN_WEB_URL = 'https://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/';
-    // Android Intent WITHOUT S.browser_fallback_url so Chrome does NOT navigate the active tab away!
-    var LINKEDIN_ANDROID_INTENT = 'intent://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/#Intent;package=com.linkedin.android;scheme=https;end;';
-    var LINKEDIN_APP_SCHEME = 'linkedin://company/' + LINKEDIN_COMPANY_SLUG;
+    // Android Intent WITH S.browser_fallback_url:
+    // If app installed -> launches app. If app NOT installed -> opens on the browser only!
+    var LINKEDIN_ANDROID_INTENT = 'intent://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/#Intent;package=com.linkedin.android;scheme=https;S.browser_fallback_url=' + encodeURIComponent(LINKEDIN_WEB_URL) + ';end;';
     var APPLICATION_FORM_URL = 'https://forms.gle/3MqJjTt8rDVob79G9';
 
     var step1 = document.getElementById('step-1');
@@ -45,10 +47,32 @@
     var ua = navigator.userAgent || navigator.vendor || window.opera || '';
     var isAndroid = /Android/i.test(ua);
     var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    var isMobile = isAndroid || isIOS || /Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
 
     // In-memory fallback
     var inMemoryStep = '1';
+
+    /**
+     * Configure anchor targets and URLs:
+     * - Android: intent:// with S.browser_fallback_url (App if installed, browser only if not)
+     * - iOS & Desktop: https:// (App via Universal Link if installed, browser only if not)
+     */
+    if (isAndroid) {
+      linkedinBtn.setAttribute('href', LINKEDIN_ANDROID_INTENT);
+      if (revisitLinkedinLink) {
+        revisitLinkedinLink.setAttribute('href', LINKEDIN_ANDROID_INTENT);
+      }
+    } else {
+      linkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
+      if (revisitLinkedinLink) {
+        revisitLinkedinLink.setAttribute('href', LINKEDIN_WEB_URL);
+      }
+    }
+    linkedinBtn.setAttribute('target', '_blank');
+    linkedinBtn.setAttribute('rel', 'noopener noreferrer');
+    if (revisitLinkedinLink) {
+      revisitLinkedinLink.setAttribute('target', '_blank');
+      revisitLinkedinLink.setAttribute('rel', 'noopener noreferrer');
+    }
 
     /**
      * Check URL query parameter: ?reset=1 or ?test=1 to reset demo state
@@ -161,45 +185,10 @@
     // Step A: Initial render on page load / reload
     updateViewState(false);
 
-    /**
-     * Helper to launch LinkedIn app or webpage
-     */
-    function launchLinkedIn() {
-      var clickTime = Date.now();
-
-      if (isAndroid) {
-        // Android Intent without fallback url (preserves Chrome tab)
-        window.location.href = LINKEDIN_ANDROID_INTENT;
-
-        // Fallback if app is not installed
-        setTimeout(function () {
-          if (!document.hidden && (Date.now() - clickTime < 2500)) {
-            window.open(LINKEDIN_WEB_URL, '_blank');
-          }
-        }, 1200);
-
-      } else if (isIOS) {
-        window.location.href = LINKEDIN_APP_SCHEME;
-
-        setTimeout(function () {
-          if (!document.hidden && (Date.now() - clickTime < 2500)) {
-            window.open(LINKEDIN_WEB_URL, '_blank');
-          }
-        }, 1200);
-
-      } else {
-        window.open(LINKEDIN_WEB_URL, '_blank');
-      }
-    }
-
     // Step B: User clicks LinkedIn button on Step 1 ("Click Here ↗")
     function handleLinkedInClick(event) {
       if (event.type === 'auxclick' && event.button !== 1) {
         return;
-      }
-
-      if (event && event.preventDefault) {
-        event.preventDefault();
       }
 
       // 1. Advance state to Step 2
@@ -208,8 +197,12 @@
       // 2. Switch card to display ONLY Step 2
       renderStep('2', true);
 
-      // 3. Launch LinkedIn app / new tab
-      launchLinkedIn();
+      // We do NOT preventDefault:
+      // The anchor's target="_blank" natively opens the link:
+      // - If mobile has LinkedIn app -> launches the app!
+      // - If mobile DOES NOT have LinkedIn app -> opens on the browser only!
+      // - On Desktop -> opens on the browser only!
+      // And this tab stays 100% intact displaying Step 2 with the Application Form button!
     }
 
     linkedinBtn.addEventListener('click', handleLinkedInClick);
@@ -217,9 +210,8 @@
 
     // Revisit LinkedIn button on Step 2
     if (revisitLinkedinLink) {
-      revisitLinkedinLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        launchLinkedIn();
+      revisitLinkedinLink.addEventListener('click', function () {
+        // Native target="_blank" opens app if installed, browser only if not
       });
     }
 
@@ -248,10 +240,9 @@
 
     // Final LinkedIn button on Step 3
     if (finalLinkedinBtn) {
-      finalLinkedinBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        launchLinkedIn();
-      });
+      finalLinkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
+      finalLinkedinBtn.setAttribute('target', '_blank');
+      finalLinkedinBtn.setAttribute('rel', 'noopener noreferrer');
     }
 
     // Step D: Tab Return / Window Focus ("malli vasthey")
