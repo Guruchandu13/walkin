@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Careers | Sivion Global Technologies</title>
+  <meta name="description"
+    content="Join Sivion Global Technologies. Visit our LinkedIn page and continue to the application form.">
+  <meta name="theme-color" content="#030A1C">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230B1F4B'/%3E%3Ccircle cx='12' cy='12' r='5' fill='%2338BDF8'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- Smooth Fluid Aurora / Mesh Gradient Background -->
+  <div class="aurora-container" aria-hidden="true">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+    <div class="aurora-blob aurora-blob-3"></div>
+    <div class="aurora-blob aurora-blob-center"></div>
+  </div>
+
+  <main>
+    <section class="card" aria-label="Recruitment Information">
+      <!-- Upper specular glass edge highlight -->
+      <div class="card-specular-edge" aria-hidden="true"></div>
+
+      <!-- 1. Official Company Logo -->
+      <div class="brand-header">
+        <img src="logo.png" alt="Sivion Global Technologies" class="company-logo" width="260" height="55"
+          loading="eager">
+      </div>
+
+      <!-- STEP 1: First view (Displays ONLY LinkedIn) -->
+      <div id="step-linkedin" class="step-pane">
+        <h1>
+          Welcome to Our<br>
+          Recruitment <span class="text-glow">Process</span>
+        </h1>
+
+        <p class="card-desc">
+          Thank you for your interest in joining our team.<br>
+          Visit our LinkedIn page to learn more about our company,<br>
+          then continue to the application form.
+        </p>
+
+        <a id="linkedin-btn" class="btn btn-linkedin"
+          href="https://www.linkedin.com/company/sivionglobaltechnologies/?viewAsMember=true" target="_blank"
+          rel="noopener noreferrer" aria-controls="step-apply" aria-expanded="false">
+          <span class="btn-badge" aria-hidden="true">
+            <svg class="badge-icon icon-linkedin" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+            </svg>
+          </span>
+          <span class="btn-divider" aria-hidden="true"></span>
+          <span class="btn-label">Click Here ↗</span>
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+
+      <!-- STEP 2: When candidate returns from LinkedIn ("malli vasthey") -->
+      <div id="step-apply" class="step-pane" hidden>
+        <!-- Verified Status Indicator -->
+        <div class="status-badge" aria-hidden="true">
+          <svg class="badge-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <h2>Ready to <span class="text-glow">Apply?</span></h2>
+        <p class="card-desc">
+          Continue to the application form and<br>submit your details.
+        </p>
+
+        <!-- Button 2: Application Form Button -->
+        <a id="apply-btn" class="btn btn-apply" href="https://forms.gle/3MqJjTt8rDVob79G9" target="_blank"
+          rel="noopener noreferrer">
+          <span class="btn-badge" aria-hidden="true">
+            <svg class="badge-icon icon-doc" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+            </svg>
+          </span>
+          <span class="btn-divider" aria-hidden="true"></span>
+          <span class="btn-label">Continue to Application Form →</span>
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+
+        <!-- Revisit option for convenience -->
+        <div class="revisit-container">
+          <a id="revisit-linkedin-link" class="revisit-link"
+            href="https://www.linkedin.com/company/sivionglobaltechnologies/?viewAsMember=true" target="_blank"
+            rel="noopener noreferrer">
+            Visit LinkedIn page again ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Discreet testing reset button -->
+      <div class="test-controls">
+        <button id="reset-flow-btn" class="reset-link" type="button" title="Reset for testing">
+          ↺ Reset to Step 1 (Test)
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
