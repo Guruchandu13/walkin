@@ -1,18 +1,17 @@
 /**
  * Sivion Global Technologies - Recruitment Landing Page Script
  *
- * Flow:
- * 1. Initial Scan:
- *    - Displays the LinkedIn Recruitment card with the LinkedIn button ("Click Here ↗").
- *    - The downside application button is hidden.
+ * Requirements:
+ * 1. Initial State: Displays the LinkedIn Recruitment card with "Click Here ↗".
+ *    Downside application section is hidden.
  * 2. Click LinkedIn:
- *    - On Mobile: Launches the native LinkedIn app directly (via Android Intents / iOS Universal Links),
- *      or falls back cleanly to the company web page.
- *    - On Desktop: Opens LinkedIn in a new tab.
- *    - Immediately reveals the downside Application Form button ("Continue to Application Form →").
- * 3. Page Reload / Tab Return ("once we reload the page again" / "malli vasthey"):
- *    - Retains the LinkedIn card view at the top.
- *    - Downside (replacing the old reset place), displays the "Continue to Application Form →" button.
+ *    - Immediately displays the Application Form button downside on THIS tab.
+ *    - On Mobile with LinkedIn app: Launches the LinkedIn app WITHOUT navigating the Chrome tab away.
+ *    - When the candidate switches back from the LinkedIn app to Chrome ("malli aa chrome chusinappudu"):
+ *      The Chrome tab remains directly on this recruitment page, showing the Application Form button.
+ *    - If LinkedIn opens in Chrome ("chrome lo linkedin open aythy em problem ledu"):
+ *      It opens in a new tab without overwriting this recruitment tab.
+ * 3. Page Reload: Retains the LinkedIn card view and keeps the Application Form button active downside.
  */
 (function () {
   'use strict';
@@ -21,7 +20,9 @@
     var STORAGE_KEY = 'sivion_hiring_linkedin_clicked';
     var LINKEDIN_COMPANY_SLUG = 'sivionglobaltechnologies';
     var LINKEDIN_WEB_URL = 'https://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/';
-    var LINKEDIN_ANDROID_INTENT = 'intent://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/#Intent;package=com.linkedin.android;scheme=https;S.browser_fallback_url=' + encodeURIComponent(LINKEDIN_WEB_URL) + ';end;';
+    // Android Intent WITHOUT S.browser_fallback_url so Chrome does NOT navigate the active tab!
+    var LINKEDIN_ANDROID_INTENT = 'intent://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/#Intent;package=com.linkedin.android;scheme=https;end;';
+    var LINKEDIN_APP_SCHEME = 'linkedin://company/' + LINKEDIN_COMPANY_SLUG;
 
     var linkedinBtn = document.getElementById('linkedin-btn');
     var applySection = document.getElementById('apply-section');
@@ -51,7 +52,7 @@
     }
 
     /**
-     * Multi-tier state persistence across localStorage, sessionStorage, cookie, and memory
+     * Multi-tier safe state persistence (localStorage, sessionStorage, cookie, memory)
      */
     function saveState() {
       inMemoryClicked = true;
@@ -109,23 +110,22 @@
 
     /**
      * Reveal downside Application Form button
+     * Explicitly sets visibility & display so no interrupted animation can hide it
      */
     function showApplySection(animated) {
       linkedinBtn.setAttribute('aria-expanded', 'true');
+      applySection.removeAttribute('hidden');
+      applySection.style.display = 'block';
+      applySection.style.opacity = '1';
+      applySection.style.visibility = 'visible';
 
       if (!animated || isReducedMotionPreferred()) {
-        applySection.removeAttribute('hidden');
         applySection.classList.remove('is-entering');
         return;
       }
 
-      if (!applySection.hasAttribute('hidden')) {
-        return;
-      }
-
-      applySection.removeAttribute('hidden');
       applySection.classList.remove('is-entering');
-      void applySection.offsetWidth; // Trigger reflow for clean animation
+      void applySection.offsetWidth; // Trigger reflow for clean CSS animation replay
       applySection.classList.add('is-entering');
     }
 
@@ -135,14 +135,14 @@
     function hideApplySection() {
       linkedinBtn.setAttribute('aria-expanded', 'false');
       applySection.setAttribute('hidden', '');
+      applySection.style.display = 'none';
+      applySection.style.opacity = '0';
+      applySection.style.visibility = 'hidden';
       applySection.classList.remove('is-entering');
     }
 
     /**
-     * Check stored state:
-     * - Once clicked or on reload after clicking: LinkedIn page is displayed,
-     *   and downside reveals the Application Form button.
-     * - Initial scan: LinkedIn page is displayed; downside application button is hidden.
+     * Check stored state and show/hide the downside application button
      */
     function updateViewState(animated) {
       if (readState() === 'true') {
@@ -150,25 +150,6 @@
       } else {
         hideApplySection();
       }
-    }
-
-    /**
-     * Mobile vs Desktop Link Behavior:
-     * - On mobile: Remove target="_blank" so iOS Universal Links and Android App Links
-     *   can hand off directly to the native LinkedIn app.
-     * - On desktop: Keep target="_blank" to open in a new tab.
-     */
-    if (isMobile) {
-      linkedinBtn.removeAttribute('target');
-      linkedinBtn.removeAttribute('rel');
-
-      if (isAndroid) {
-        linkedinBtn.setAttribute('href', LINKEDIN_ANDROID_INTENT);
-      } else {
-        linkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
-      }
-    } else {
-      linkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
     }
 
     // Step A: Initial render on page load / reload
@@ -180,28 +161,55 @@
         return;
       }
 
-      // 1. Record state synchronously
+      // 1. Immediately persist state
       saveState();
 
-      // 2. Reveal downside Application Form button immediately
-      showApplySection(true);
+      // 2. Immediately reveal the application button right on THIS tab
+      showApplySection(false);
 
-      // 3. Android Intent Redirection (Direct to App or Browser Fallback)
-      if (isAndroid) {
-        if (event && event.preventDefault) {
-          event.preventDefault();
-        }
-        window.location.href = LINKEDIN_ANDROID_INTENT;
+      // 3. Prevent default link navigation so THIS Chrome tab is NEVER navigated away
+      if (event && event.preventDefault) {
+        event.preventDefault();
       }
-      // On iOS: Native link navigation to LINKEDIN_WEB_URL without target="_blank"
-      // triggers iOS Universal Links to open the LinkedIn App directly if installed.
-      // On Desktop: Native link opens in target="_blank".
+
+      var clickTime = Date.now();
+
+      if (isAndroid) {
+        // Launch LinkedIn app via Android Intent (without fallback URL, so this tab NEVER loads LinkedIn web)
+        window.location.href = LINKEDIN_ANDROID_INTENT;
+
+        // If the LinkedIn app is not installed, the browser remains visible;
+        // fallback to opening LinkedIn web in a NEW tab after 1200ms
+        setTimeout(function () {
+          if (!document.hidden && (Date.now() - clickTime < 2500)) {
+            window.open(LINKEDIN_WEB_URL, '_blank');
+          }
+        }, 1200);
+
+      } else if (isIOS) {
+        // Attempt to open the native LinkedIn iOS app
+        window.location.href = LINKEDIN_APP_SCHEME;
+
+        // Fallback to opening in a new tab if app not installed
+        setTimeout(function () {
+          if (!document.hidden && (Date.now() - clickTime < 2500)) {
+            window.open(LINKEDIN_WEB_URL, '_blank');
+          }
+        }, 1200);
+
+      } else {
+        // Desktop: open LinkedIn in a new tab
+        window.open(LINKEDIN_WEB_URL, '_blank');
+      }
     }
 
+    // Listen on click and touchstart for instant response
     linkedinBtn.addEventListener('click', handleLinkedInClick);
     linkedinBtn.addEventListener('auxclick', handleLinkedInClick);
 
-    // Step C: "Malli vasthey" / Tab return / Visibility change
+    // Step C: "Malli vasthey" / Tab Return / Window Focus
+    // When switching back from the LinkedIn mobile app to Chrome,
+    // these events ensure the Application Form button is actively displayed
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') {
         updateViewState(false);

@@ -430,10 +430,14 @@ h1, h2 {
 .apply-section {
   margin-top: 24px;
   position: relative;
+  opacity: 1;
+  visibility: visible;
 }
 
 .apply-section[hidden] {
   display: none !important;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .apply-section.is-entering {
