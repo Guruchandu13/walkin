@@ -34,8 +34,8 @@
           loading="eager">
       </div>
 
-      <!-- STEP 1: First view (Displays ONLY LinkedIn) -->
-      <div id="step-linkedin" class="step-pane">
+      <!-- Main LinkedIn Section (Always displayed) -->
+      <div class="recruitment-intro">
         <h1>
           Welcome to Our<br>
           Recruitment <span class="text-glow">Process</span>
@@ -47,9 +47,10 @@
           then continue to the application form.
         </p>
 
+        <!-- Button 1: LinkedIn Button -->
         <a id="linkedin-btn" class="btn btn-linkedin"
           href="https://www.linkedin.com/company/sivionglobaltechnologies/" target="_blank"
-          rel="noopener noreferrer" aria-controls="step-apply" aria-expanded="false">
+          rel="noopener noreferrer" aria-controls="apply-section" aria-expanded="false">
           <span class="btn-badge" aria-hidden="true">
             <svg class="badge-icon icon-linkedin" viewBox="0 0 24 24" fill="currentColor">
               <path
@@ -62,20 +63,21 @@
         </a>
       </div>
 
-      <!-- STEP 2: When candidate returns from LinkedIn ("malli vasthey") -->
-      <div id="step-apply" class="step-pane" hidden>
-        <!-- Verified Status Indicator -->
-        <div class="status-badge" aria-hidden="true">
-          <svg class="badge-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-            stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
+      <!-- DOWNSIDE: Replaces the reset place into the Application Form Button -->
+      <div id="apply-section" class="apply-section" hidden>
+        <div class="apply-divider" aria-hidden="true">
+          <span class="apply-divider-line"></span>
+          <span class="apply-divider-badge">
+            <svg class="badge-icon icon-check-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Step 2: Apply
+          </span>
+          <span class="apply-divider-line"></span>
         </div>
 
-        <h2>Ready to <span class="text-glow">Apply?</span></h2>
-        <p class="card-desc">
-          Continue to the application form and<br>submit your details.
-        </p>
+        <p class="apply-prompt">Ready to submit your application?</p>
 
         <!-- Button 2: Application Form Button -->
         <a id="apply-btn" class="btn btn-apply" href="https://forms.gle/3MqJjTt8rDVob79G9" target="_blank"
@@ -90,22 +92,6 @@
           <span class="btn-label">Continue to Application Form →</span>
           <span class="sr-only"> (opens in a new tab)</span>
         </a>
-
-        <!-- Revisit option for convenience -->
-        <div class="revisit-container">
-          <a id="revisit-linkedin-link" class="revisit-link"
-            href="https://www.linkedin.com/company/sivionglobaltechnologies/" target="_blank"
-            rel="noopener noreferrer">
-            Visit LinkedIn page again ↗
-          </a>
-        </div>
-      </div>
-
-      <!-- Discreet testing reset button -->
-      <div class="test-controls">
-        <button id="reset-flow-btn" class="reset-link" type="button" title="Reset for testing">
-          ↺ Reset to Step 1 (Test)
-        </button>
       </div>
     </section>
   </main>

@@ -1,13 +1,18 @@
 /**
  * Sivion Global Technologies - Recruitment Landing Page Script
+ *
  * Flow:
- * 1. Initial Scan: Displays ONLY Step 1 (LinkedIn card).
+ * 1. Initial Scan:
+ *    - Displays the LinkedIn Recruitment card with the LinkedIn button ("Click Here ↗").
+ *    - The downside application button is hidden.
  * 2. Click LinkedIn:
- *    - On Mobile: Directly redirects/opens the native LinkedIn app if installed,
- *      or falls back cleanly to the company page.
+ *    - On Mobile: Launches the native LinkedIn app directly (via Android Intents / iOS Universal Links),
+ *      or falls back cleanly to the company web page.
  *    - On Desktop: Opens LinkedIn in a new tab.
- * 3. Return to Tab ("Malli vasthey"):
- *    - Immediately displays Step 2 ("Ready to Apply?" with Application Form button).
+ *    - Immediately reveals the downside Application Form button ("Continue to Application Form →").
+ * 3. Page Reload / Tab Return ("once we reload the page again" / "malli vasthey"):
+ *    - Retains the LinkedIn card view at the top.
+ *    - Downside (replacing the old reset place), displays the "Continue to Application Form →" button.
  */
 (function () {
   'use strict';
@@ -18,13 +23,11 @@
     var LINKEDIN_WEB_URL = 'https://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/';
     var LINKEDIN_ANDROID_INTENT = 'intent://www.linkedin.com/company/' + LINKEDIN_COMPANY_SLUG + '/#Intent;package=com.linkedin.android;scheme=https;S.browser_fallback_url=' + encodeURIComponent(LINKEDIN_WEB_URL) + ';end;';
 
-    var stepLinkedin = document.getElementById('step-linkedin');
-    var stepApply = document.getElementById('step-apply');
     var linkedinBtn = document.getElementById('linkedin-btn');
-    var revisitLinkedinLink = document.getElementById('revisit-linkedin-link');
-    var resetFlowBtn = document.getElementById('reset-flow-btn');
+    var applySection = document.getElementById('apply-section');
+    var companyLogo = document.querySelector('.company-logo');
 
-    if (!stepLinkedin || !stepApply || !linkedinBtn) {
+    if (!linkedinBtn || !applySection) {
       return;
     }
 
@@ -48,8 +51,7 @@
     }
 
     /**
-     * Multi-layer safe storage wrappers (localStorage, sessionStorage, cookie, memory)
-     * Guarantees persistence even in restricted in-app mobile webviews (WhatsApp, Instagram, Safari Private)
+     * Multi-tier state persistence across localStorage, sessionStorage, cookie, and memory
      */
     function saveState() {
       inMemoryClicked = true;
@@ -106,63 +108,52 @@
     }
 
     /**
-     * Show ONLY the Application Form View (Step 2)
-     * Synchronous DOM update ensures it is immediately ready before app switch
+     * Reveal downside Application Form button
      */
-    function showApplyView(animated) {
+    function showApplySection(animated) {
       linkedinBtn.setAttribute('aria-expanded', 'true');
 
-      // Reset inline styles from any previous transitions
-      stepLinkedin.style.opacity = '';
-      stepLinkedin.style.transform = '';
-      stepLinkedin.style.transition = '';
-
       if (!animated || isReducedMotionPreferred()) {
-        stepLinkedin.setAttribute('hidden', '');
-        stepApply.removeAttribute('hidden');
-        stepApply.classList.remove('is-entering');
+        applySection.removeAttribute('hidden');
+        applySection.classList.remove('is-entering');
         return;
       }
 
-      // If already on apply step, do not repeat
-      if (stepLinkedin.hasAttribute('hidden') && !stepApply.hasAttribute('hidden')) {
+      if (!applySection.hasAttribute('hidden')) {
         return;
       }
 
-      // Immediate DOM switch with CSS entrance animation
-      stepLinkedin.setAttribute('hidden', '');
-      stepApply.removeAttribute('hidden');
-      stepApply.classList.remove('is-entering');
-      // Trigger reflow for clean CSS animation replay
-      void stepApply.offsetWidth;
-      stepApply.classList.add('is-entering');
+      applySection.removeAttribute('hidden');
+      applySection.classList.remove('is-entering');
+      void applySection.offsetWidth; // Trigger reflow for clean animation
+      applySection.classList.add('is-entering');
     }
 
     /**
-     * Show ONLY the LinkedIn View (Step 1)
+     * Hide downside Application Form button (initial state)
      */
-    function showLinkedinView() {
+    function hideApplySection() {
       linkedinBtn.setAttribute('aria-expanded', 'false');
-      stepApply.setAttribute('hidden', '');
-      stepLinkedin.removeAttribute('hidden');
-      stepLinkedin.style.opacity = '';
-      stepLinkedin.style.transform = '';
-      stepApply.classList.remove('is-entering');
+      applySection.setAttribute('hidden', '');
+      applySection.classList.remove('is-entering');
     }
 
     /**
-     * Check stored state and show the appropriate single step
+     * Check stored state:
+     * - Once clicked or on reload after clicking: LinkedIn page is displayed,
+     *   and downside reveals the Application Form button.
+     * - Initial scan: LinkedIn page is displayed; downside application button is hidden.
      */
     function updateViewState(animated) {
       if (readState() === 'true') {
-        showApplyView(animated);
+        showApplySection(animated);
       } else {
-        showLinkedinView();
+        hideApplySection();
       }
     }
 
     /**
-     * Configure Mobile vs Desktop Link Behavior:
+     * Mobile vs Desktop Link Behavior:
      * - On mobile: Remove target="_blank" so iOS Universal Links and Android App Links
      *   can hand off directly to the native LinkedIn app.
      * - On desktop: Keep target="_blank" to open in a new tab.
@@ -170,30 +161,17 @@
     if (isMobile) {
       linkedinBtn.removeAttribute('target');
       linkedinBtn.removeAttribute('rel');
-      if (revisitLinkedinLink) {
-        revisitLinkedinLink.removeAttribute('target');
-        revisitLinkedinLink.removeAttribute('rel');
-      }
 
       if (isAndroid) {
         linkedinBtn.setAttribute('href', LINKEDIN_ANDROID_INTENT);
-        if (revisitLinkedinLink) {
-          revisitLinkedinLink.setAttribute('href', LINKEDIN_ANDROID_INTENT);
-        }
       } else {
         linkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
-        if (revisitLinkedinLink) {
-          revisitLinkedinLink.setAttribute('href', LINKEDIN_WEB_URL);
-        }
       }
     } else {
       linkedinBtn.setAttribute('href', LINKEDIN_WEB_URL);
-      if (revisitLinkedinLink) {
-        revisitLinkedinLink.setAttribute('href', LINKEDIN_WEB_URL);
-      }
     }
 
-    // Step A: Initial render on page load
+    // Step A: Initial render on page load / reload
     updateViewState(false);
 
     // Step B: User clicks the LinkedIn button
@@ -205,10 +183,8 @@
       // 1. Record state synchronously
       saveState();
 
-      // 2. Synchronously switch this browser tab to Step 2 (Application Form)
-      // Done synchronously BEFORE app redirection so the tab is ALREADY showing
-      // the Application Form button the instant the user returns to this tab!
-      showApplyView(false);
+      // 2. Reveal downside Application Form button immediately
+      showApplySection(true);
 
       // 3. Android Intent Redirection (Direct to App or Browser Fallback)
       if (isAndroid) {
@@ -225,16 +201,7 @@
     linkedinBtn.addEventListener('click', handleLinkedInClick);
     linkedinBtn.addEventListener('auxclick', handleLinkedInClick);
 
-    if (revisitLinkedinLink && isAndroid) {
-      revisitLinkedinLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        window.location.href = LINKEDIN_ANDROID_INTENT;
-      });
-    }
-
-    // Step C: "Malli vasthey" - Detect when candidate returns from LinkedIn app/tab
-    // When switching back from the LinkedIn mobile app to the browser tab,
-    // these events trigger immediately to ensure Step 2 is active.
+    // Step C: "Malli vasthey" / Tab return / Visibility change
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') {
         updateViewState(false);
@@ -249,11 +216,22 @@
       updateViewState(false);
     });
 
-    // Step D: Reset button for easy testing
-    if (resetFlowBtn) {
-      resetFlowBtn.addEventListener('click', function () {
-        clearState();
-        showLinkedinView();
+    // Step D: Discreet test reset by tapping company logo 3 times
+    if (companyLogo) {
+      var logoTaps = 0;
+      var logoTapTimer = null;
+      companyLogo.addEventListener('click', function () {
+        logoTaps++;
+        clearTimeout(logoTapTimer);
+        logoTapTimer = setTimeout(function () {
+          logoTaps = 0;
+        }, 1200);
+
+        if (logoTaps >= 3) {
+          logoTaps = 0;
+          clearState();
+          hideApplySection();
+        }
       });
     }
   }

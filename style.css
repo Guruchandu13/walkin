@@ -426,46 +426,72 @@ h1, h2 {
     inset 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
-/* Revisit LinkedIn link */
-.revisit-container {
-  margin-top: 18px;
+/* DOWNSIDE: Application Section Reveal */
+.apply-section {
+  margin-top: 24px;
+  position: relative;
 }
 
-.revisit-link {
+.apply-section[hidden] {
+  display: none !important;
+}
+
+.apply-section.is-entering {
+  animation: applyRevealSlide 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes applyRevealSlide {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glassmorphic Divider between LinkedIn & Application Form */
+.apply-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.apply-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(91, 194, 255, 0.3), transparent);
+}
+
+.apply-divider-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cyan-accent);
+  background: rgba(15, 82, 186, 0.3);
+  border: 1px solid rgba(91, 194, 255, 0.32);
+  box-shadow: 0 0 14px rgba(91, 194, 255, 0.18);
+}
+
+.icon-check-small {
+  width: 13px;
+  height: 13px;
+  color: var(--cyan-accent);
+}
+
+.apply-prompt {
+  margin: 0 0 14px 0;
   font-size: 13px;
-  color: #7D98C8;
-  text-decoration: none;
-  transition: color 150ms ease, text-shadow 150ms ease;
-}
-
-.revisit-link:hover {
-  color: var(--cyan-accent);
-  text-shadow: 0 0 8px rgba(91, 194, 255, 0.4);
-}
-
-/* Discreet test controls for verifying flow */
-.test-controls {
-  margin-top: 22px;
-  padding-top: 14px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-}
-
-.reset-link {
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: 11px;
-  color: rgba(159, 179, 213, 0.45);
-  cursor: pointer;
-  letter-spacing: 0.03em;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: color 150ms ease, background-color 150ms ease;
-}
-
-.reset-link:hover {
-  color: var(--cyan-accent);
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  line-height: 1.45;
 }
 
 /* Screen reader only utility */
