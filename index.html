@@ -31,11 +31,11 @@
       <!-- 1. Official Company Logo -->
       <div class="brand-header">
         <img src="logo.png" alt="Sivion Global Technologies" class="company-logo" width="260" height="55"
-          loading="eager">
+          loading="eager" title="Sivion Global Technologies">
       </div>
 
-      <!-- Main LinkedIn Section (Always displayed) -->
-      <div class="recruitment-intro">
+      <!-- STEP 1: First view (Displays ONLY LinkedIn) -->
+      <div id="step-1" class="step-pane">
         <h1>
           Welcome to Our<br>
           Recruitment <span class="text-glow">Process</span>
@@ -50,7 +50,7 @@
         <!-- Button 1: LinkedIn Button -->
         <a id="linkedin-btn" class="btn btn-linkedin"
           href="https://www.linkedin.com/company/sivionglobaltechnologies/" target="_blank"
-          rel="noopener noreferrer" aria-controls="apply-section" aria-expanded="false">
+          rel="noopener noreferrer" aria-controls="step-2" aria-expanded="false">
           <span class="btn-badge" aria-hidden="true">
             <svg class="badge-icon icon-linkedin" viewBox="0 0 24 24" fill="currentColor">
               <path
@@ -63,21 +63,20 @@
         </a>
       </div>
 
-      <!-- DOWNSIDE: Replaces the reset place into the Application Form Button -->
-      <div id="apply-section" class="apply-section" hidden>
-        <div class="apply-divider" aria-hidden="true">
-          <span class="apply-divider-line"></span>
-          <span class="apply-divider-badge">
-            <svg class="badge-icon icon-check-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            Step 2: Apply
-          </span>
-          <span class="apply-divider-line"></span>
+      <!-- STEP 2: When candidate returns from LinkedIn ("malli vasthey" / reload) -->
+      <div id="step-2" class="step-pane" hidden>
+        <!-- Verified Status Indicator -->
+        <div class="status-badge" aria-hidden="true">
+          <svg class="badge-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
         </div>
 
-        <p class="apply-prompt">Ready to submit your application?</p>
+        <h2>Ready to <span class="text-glow">Apply?</span></h2>
+        <p class="card-desc">
+          Continue to the application form and<br>submit your details.
+        </p>
 
         <!-- Button 2: Application Form Button -->
         <a id="apply-btn" class="btn btn-apply" href="https://forms.gle/3MqJjTt8rDVob79G9" target="_blank"
@@ -90,6 +89,46 @@
           </span>
           <span class="btn-divider" aria-hidden="true"></span>
           <span class="btn-label">Continue to Application Form →</span>
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+
+        <!-- Revisit option for convenience -->
+        <div class="revisit-container">
+          <a id="revisit-linkedin-link" class="revisit-link"
+            href="https://www.linkedin.com/company/sivionglobaltechnologies/" target="_blank"
+            rel="noopener noreferrer">
+            Visit LinkedIn page again ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- STEP 3: After Step 2 completion -> Direct LinkedIn page -->
+      <div id="step-3" class="step-pane" hidden>
+        <div class="status-badge" aria-hidden="true">
+          <svg class="badge-icon icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <h2>Application <span class="text-glow">Opened!</span></h2>
+        <p class="card-desc">
+          Complete your application form,<br>
+          then follow our official LinkedIn page for updates.
+        </p>
+
+        <!-- Button 3: Direct LinkedIn Page Button -->
+        <a id="final-linkedin-btn" class="btn btn-linkedin"
+          href="https://www.linkedin.com/company/sivionglobaltechnologies/" target="_blank"
+          rel="noopener noreferrer">
+          <span class="btn-badge" aria-hidden="true">
+            <svg class="badge-icon icon-linkedin" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+            </svg>
+          </span>
+          <span class="btn-divider" aria-hidden="true"></span>
+          <span class="btn-label">Follow Us on LinkedIn ↗</span>
           <span class="sr-only"> (opens in a new tab)</span>
         </a>
       </div>
