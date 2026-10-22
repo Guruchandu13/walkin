@@ -4,8 +4,12 @@ A production-ready, single-card liquid glassmorphic recruitment landing page des
 
 ## 🚀 Features
 - **Two-Step Progressive Flow**:
-  1. **Step 1 (First Scan)**: Displays company branding, welcome message, and **"Visit Our LinkedIn Page ↗"**.
-  2. **Step 2 (Upon Return)**: Automatically detects return and displays **"Continue to Application Form →"** (Google Form).
+  1. **Step 1 (First Scan)**: Displays company branding, welcome message, and **"Click Here ↗"**.
+  2. **Mobile App Redirection**:
+     - Automatically launches the **native LinkedIn mobile app** (via Android Intents & iOS Universal Links).
+     - Falls back seamlessly to the company web page if the app is not installed.
+  3. **Step 2 (Upon Return / "Malli vasthey")**:
+     - When candidate returns to the browser tab, it immediately displays **"Continue to Application Form →"** (Google Form).
 - **Design & UI**:
   - Liquid glassmorphism with dynamic ambient aurora backdrop.
   - Official Sivion Global Technologies metallic gold logo.
@@ -13,7 +17,7 @@ A production-ready, single-card liquid glassmorphic recruitment landing page des
 - **Accessibility & Performance**:
   - Pure HTML5, CSS3, Vanilla JavaScript (0 external dependencies or CDN latency).
   - WCAG AA compliant contrast and `:focus-visible` states.
-  - State persistence via safe `localStorage` with private-browsing fallbacks.
+  - Multi-tier state persistence across `localStorage`, `sessionStorage`, cookies, and memory.
 
 ## 📁 File Structure
 ```text
